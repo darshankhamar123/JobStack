@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>@ViewBag.Title - My ASP.NET MVC Application</title>
+        <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <meta name="viewport" content="width=device-width" />
+        <script src="~/Scripts/jquery-1.7.1.min.js"></script>
+        @Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")
+    </head>
+    <body>
+      <div class="wrapper"> 
+  
+  <!-- container starts -->
+  <div class="container"> 
+    
+    <!-- Header Starts -->
+    <div class="header">
+      <div class="logo">
+        <h1><a href="#">Venture</a><span>Your slogan goes here</span></h1>
+      </div>
+      <div class="header_nav">
+        <ul>
+          <li><a href="#"><img src="~/images/icon/home-icon.png" /></a></li>
+          <li><a href="#"><img src="~/images/icon/images-Search.png" /></a></li>
+          <li><a href="#"><img src="~/images/icon/Login-Icon.png" /></a></li>
+          
+        </ul>
+        <div class="clear"></div>
+      </div>
+      <div class="clear"></div>
+    </div>
+    <div class="banner"><img src="~/images/banner.jpg" width="980" height="332" alt="banar" /></div>
+    <!-- Header ends --> 
+    
+    <!-- maincontent Starts -->
+    <div class="main_content">
+              <section class="content-wrapper main-content clear-fix">
+                @RenderSection("featured",false)
+                   @RenderBody()
+                 
+            </section>
+        @RenderPage("~/Views/Shared/_Footer.cshtml");
+
+      <!-- footer ends --> 
+    </div>
+  </div>
+  <!-- container ends --> 
+  
+</div>
+      
+      
+        @Scripts.Render("~/bundles/jquery")
+        @RenderSection("scripts", required: false)
+    </body>
+</html>

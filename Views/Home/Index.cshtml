@@ -1,0 +1,1530 @@
+﻿<div class="shadowContainer">
+  		<div class="errorMessage"></div>
+  		<div class="userMessage" style="display: none;"></div>
+  		<div id="saveJobsMessageId" class="errorMessage"></div>
+  		<h3 class="pB5"></h3>
+  		<div class="jobSearchBoxMain">
+  			<!-- This is a advance job search page-->
+  			
+
+
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#from').attr('readonly','readonly');
+        $('#to').attr('readonly','readonly');
+        $( "#from" ).datepicker({
+            yearRange: "-80:+0",
+            changeYear: true,
+            changeMonth: true,
+            numberOfMonths: 1,
+            showOn: "button",
+            dateFormat: 'dd/mm/yy',
+            buttonImage: "/resources/images/calendar.gif",
+            buttonImageOnly: true,
+            onClose: function( selectedDate ) {
+                $( "#to" ).datepicker( "option", "minDate", selectedDate );
+            }
+        })
+        $( "#from" ).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+                $( "#to" ).datepicker( "option",  {
+                    minDate: null,
+                    maxDate: null} );
+            }
+        });
+        $( "#to" ).datepicker({
+            yearRange: "-80:+0",
+            changeYear: true,
+            changeMonth: true,
+            numberOfMonths: 1,
+            showOn: "button",
+            dateFormat: 'dd/mm/yy',
+            buttonImage: "/resources/images/calendar.gif",
+            buttonImageOnly: true,
+            onClose: function( selectedDate ) {
+                $( "#from" ).datepicker( "option", "maxDate", selectedDate );
+            }
+        })
+        $( "#to" ).keyup(function(e) {
+            if(e.keyCode == 8 || e.keyCode == 46) {
+                $.datepicker._clearDate(this);
+                $( "#from" ).datepicker( "option", {
+                    minDate: null,
+                    maxDate: null} );
+            }
+        });
+	
+        var setCity = function () { 
+            if($('#hiddenLocId').val() != ''){
+                var selectedLocation = $('#hiddenLocId').val();
+                var select = $('#locationComboId');
+                select.find('option[value="'+selectedLocation+'"]').attr("selected", "selected");
+            }
+		
+            var locationValue = $('.locationSel') .find('select option:selected').text();
+            $('.locationSel') .find('.selectOutput').text(locationValue);
+		
+        };
+        loadLocationsCallback('locationComboId', setCity);
+	
+        $("#errorMessage").hide();
+        $("#imaAdvanceSearchFormId").validate();
+	
+        $('#goButtnId').click(function(event){
+            $("#errorMessage").hide();
+            var expTo = parseInt($("#expToId option:selected").val());
+            var expFrom = parseInt($("#expFromId option:selected").val());
+            var isBlank=true;
+            if($('input:radio:checked').length<1 && $('input:checkbox:checked').length<1 && $('#keyword').val().length<3 && $('#companyName').val().length<3 && 
+                    $('#locationComboId option:selected').val() == "" && $('#industryId option:selected').val() == "" && $('#from').val() == "" && $('#to').val() == ""
+                    && $('#functionId option:selected').val() == "" && $('#expFromId option:selected').val() == ""  && $('#expToId option:selected').val() == "") {
+                isBlank=true;
+            } else {
+                isBlank=false;
+            }
+            if(isBlank){
+                $('#errorMessage').html('Please provide any one of the search criteria.');
+                $('#errorMessage').show();
+                return;
+            } else if(expFrom != "" && expTo != "" && expFrom > expTo) {
+                $('#errorMessage').html('Experience To should be greater than Experience From.');
+                $('#errorMessage').show();
+                return;
+            } else{
+                $('#errorMessage').hide();
+                var validationResult = $("#imaAdvanceSearchFormId").valid();
+                if(validationResult){
+                    var keyword = $('#keyword').val();
+                    var location = '';
+                    var jobFunction = '';
+                    var industry = '';
+                    var jobLocationId = $('#locationComboId option:selected').val();
+                    var jobFunctionId = $('#functionId option:selected').val();
+                    var industryId = $('#industryId option:selected').val();
+				
+                    if(keyword == ''){
+                        $('#keyWordCompare').val("Vacancy");
+                    }else{
+                        $('#keyWordCompare').val(keyword);
+                    }
+
+                    if(jobLocationId == ''){
+                        location = '';
+                        $('#locationNameCompare').val("India");
+                        $('#locationName').val(location);
+                        $('#hiddenLocId').val('');
+                    }else {
+                        location = $('#locationComboId option:selected').text();
+                        location = $.trim(location);
+                        $('#locationName').val(location);
+                        $('#hiddenLocId').val(jobLocationId);
+                        $('#locationNameCompare').val(location);
+                    }
+				
+                    if(jobFunctionId == ''){
+                        $('#functionNameCompare').val('');
+                    }else{
+                        jobFunction = $('#functionId option:selected').text();
+                        jobFunction =  $.trim(jobFunction);
+                        $('#jobFunctionName').val(jobFunction);
+                        $('#functionNameCompare').val(jobFunction);
+                    }
+				
+                    if(industryId != ''){
+                        industry = $('#industryId option:selected').text();
+                        industry =  $.trim(industry);
+                        $('#industryName').val(industry);
+                    }
+                    var seoUrl = "";
+                    if(keyword != '' && location !='' && jobFunction !=''){
+                        seoUrl = "/jobs-"+keyword+"/Careers-"+location+"/Vacancies-"+jobFunction+"/Naukri/India-jobs-search";
+                    }else if(keyword != '' && location !=''){
+                        seoUrl = "/jobs-"+keyword+"/Careers-"+location+"/Jobs-Vacancies-/Naukri/India-jobs-search";
+                    }else if(location != '' && jobFunction !=''){
+                        seoUrl = "/jobs-Vacancy/Careers-"+location+"/Vacancies-"+jobFunction+"/Naukri/India-jobs-search";
+                    }else if(keyword != '' && jobFunction !=''){
+                        seoUrl = "/jobs-"+keyword+"/Careers-India/Vacancies-"+jobFunction+"/Naukri/India-jobs-search";
+                    }else if(keyword != ''){
+                        seoUrl = "/jobs-"+keyword+"/Careers-India/Jobs-Vacancies-/Naukri/India-jobs-search";
+                    }else if(location !=''){
+                        seoUrl = "/jobs-Vacancy/Careers-"+location+"/Jobs-Vacancies-/Naukri/India-jobs-search";
+                    }else if(jobFunction !=''){
+                        seoUrl = "/jobs-Vacancy/Careers-India/Vacancies-"+jobFunction+"/Naukri/India-jobs-search";
+                    }else{
+                        seoUrl = "/jobs-Vacancy/Careers-India/Jobs-Vacancies-/Naukri/India-jobs-search";
+                    }
+                    submitFormUsingGet('imaAdvanceSearchFormId',seoUrl);
+                }
+                return false;
+            }
+            return false;
+        });
+        $('#imaAdvanceSearchFormId').on('keyup', function(e){
+            var keycode = (e.keyCode ? e.keyCode : (e.which ? e.which : e.charCode));
+            if (keycode == 13){
+                e.preventDefault();
+                $("#goButtnId").trigger('click');
+            }
+        });
+    });
+    /**
+     * This function creates a bean in backend in first request. in second request it populates the data
+     
+ */
+ function submitFormUsingGet(formId, formUrl){
+     var jQueryFormId = "#" + formId ;
+     AJAX_GET_JSON_DATA("/createjobsearchbean", $("#" + formId ).serialize(), function(data){
+         $.each(data, function(key, value) { 
+             if(key == 'success' && value == 'success'){
+                 //now send get request
+                 window.location.href = formUrl;
+             }   
+         });
+     });
+ }
+
+ function saveSearch() {
+     var isBlank=true;
+     if($('input:radio:checked').length<1 && $('input:checkbox:checked').length<1 && $('#keyword').val().length<3 && $('#companyName').val().length<3 && 
+             $('#locationComboId option:selected').val() == "" && $('#industryId option:selected').val() == "" && $('#from').val() == "" && $('#to').val() == ""
+             && $('#functionId option:selected').val() == "" && $('#expFromId option:selected').val() == ""  && $('#expToId option:selected').val() == "") {
+         isBlank=true;
+     } else {
+         isBlank=false;
+     }
+     if(isBlank){
+         $('#errorMessage').html('Please provide any one of the search criteria to save search');
+         $('#errorMessage').show();
+         return;
+     }
+     $('#errorMessage').html('');
+     openPopUp('/saveSearch','popUpPageConatiner');
+ }
+</script>
+
+<script>
+    $(document) .ready(function(){
+        var expFromValue = $('.expFrSel') .find('select option:selected').text();
+        $('.expFrSel') .find('.selectOutput').text(expFromValue);
+        var expToValue = $('.expToSel') .find('select option:selected').text();
+        $('.expToSel') .find('.selectOutput').text(expToValue);
+		
+        var industryValue = $('.industrySel') .find('select option:selected').text();
+        $('.industrySel') .find('.selectOutput').text(industryValue);
+        var functionValue = $('.functionSel') .find('select option:selected').text();
+        $('.functionSel') .find('.selectOutput').text(functionValue);
+    });
+</script>
+
+<div class="jobSearchBox innerShadow_min">
+	<div id="errorMessage" class="errorMessage pB5" style="display: none;"></div>
+	<form id="imaAdvanceSearchFormId" action="advanceSearch" method="POST" novalidate="novalidate">
+		<input id="searchName" name="searchName" type="hidden" value="">
+		<input id="locationName" name="locationName" type="hidden" value="">
+		<input id="hiddenLocId" name="locationId" type="hidden" value="">
+		<input id="JobFunctionName" name="JobFunctionName" class="formInput" type="hidden" value="">
+		<input id="industryName" name="industryName" class="formInput" type="hidden" value="">
+		
+		<input id="keyWordCompare" name="keyWordCompare" class="formInput" type="hidden" value="">
+		<input id="locationNameCompare" name="locationNameCompare" class="formInput" type="hidden" value="">
+		<input id="functionNameCompare" name="functionNameCompare" class="formInput" type="hidden" value="">
+		
+		<div class="fLt lengthError mR10">
+			<input id="keyword" name="keyword" class="fLt formInput validAlphaNumeric" minlength="3" style="width:258px;" placeholder="keyword" type="text" value="" maxlength="50">
+		</div>
+
+		<div class="selectBox locationSel w203 mB8 mR10">
+			<span class="selectArrow">&nbsp;</span>
+			<div class="selectOutput w150">Select Location</div>
+			<select id="locationComboId" name="locationId" class="w203 fLt formInput">
+				<option value="">Select Location</option>
+			<option class="boldOptions" value="16934">India</option><option class="childOptions" value="16935">&nbsp;&nbsp;&nbsp;&nbsp;India (Anywhere)</option><option class="boldOptions" value="16935">India (Anywhere)</option><option class="childOptions" value="16937">&nbsp;&nbsp;&nbsp;&nbsp;East India (Anywhere)</option><option class="childOptions" value="16936">&nbsp;&nbsp;&nbsp;&nbsp;North India (Anywhere)</option><option class="childOptions" value="16939">&nbsp;&nbsp;&nbsp;&nbsp;South India (Anywhere)</option><option class="childOptions" value="16938">&nbsp;&nbsp;&nbsp;&nbsp;West India (Anywhere)</option><option class="boldOptions" value="16940">Metros</option><option class="childOptions" value="16941">&nbsp;&nbsp;&nbsp;&nbsp;Metro in India (Anywhere)</option><option class="boldOptions" value="16941">Metro in India (Anywhere)</option><option class="childOptions" value="16942">&nbsp;&nbsp;&nbsp;&nbsp;Ahmedabad</option><option class="childOptions" value="16943">&nbsp;&nbsp;&nbsp;&nbsp;Bengaluru / Bangalore</option><option class="childOptions" value="16944">&nbsp;&nbsp;&nbsp;&nbsp;Chennai / Madras</option><option class="childOptions" value="16945">&nbsp;&nbsp;&nbsp;&nbsp;Delhi and NCR</option><option class="childOptions" value="16946">&nbsp;&nbsp;&nbsp;&nbsp;Gurgaon</option><option class="childOptions" value="17217">&nbsp;&nbsp;&nbsp;&nbsp;Hyderabad / Secunderabad</option><option class="childOptions" value="16948">&nbsp;&nbsp;&nbsp;&nbsp;Kolkata</option><option class="childOptions" value="16949">&nbsp;&nbsp;&nbsp;&nbsp;Mumbai / Thane / Navi Mumbai</option><option class="childOptions" value="17197">&nbsp;&nbsp;&nbsp;&nbsp;New Delhi</option><option class="childOptions" value="16950">&nbsp;&nbsp;&nbsp;&nbsp;Noida</option><option class="childOptions" value="16951">&nbsp;&nbsp;&nbsp;&nbsp;Pune</option><option class="boldOptions" value="16952">Andhra Pradesh</option><option class="childOptions" value="16953">&nbsp;&nbsp;&nbsp;&nbsp;Andhra Pradesh (Anywhere)</option><option class="boldOptions" value="16953">Andhra Pradesh (Anywhere)</option><option class="childOptions" value="16954">&nbsp;&nbsp;&nbsp;&nbsp;Guntur</option><option class="childOptions" value="16956">&nbsp;&nbsp;&nbsp;&nbsp;Kakinada</option><option class="childOptions" value="16957">&nbsp;&nbsp;&nbsp;&nbsp;Kurnool</option><option class="childOptions" value="16958">&nbsp;&nbsp;&nbsp;&nbsp;Tirupati</option><option class="childOptions" value="16959">&nbsp;&nbsp;&nbsp;&nbsp;Vijayawada</option><option class="childOptions" value="16960">&nbsp;&nbsp;&nbsp;&nbsp;Visakhapatnam</option><option class="childOptions" value="16961">&nbsp;&nbsp;&nbsp;&nbsp;Warangal</option><option class="boldOptions" value="16962">Arunachal Pradesh</option><option class="childOptions" value="16963">&nbsp;&nbsp;&nbsp;&nbsp;Arunachal Pradesh (Anywhere)</option><option class="boldOptions" value="16963">Arunachal Pradesh (Anywhere)</option><option class="childOptions" value="16964">&nbsp;&nbsp;&nbsp;&nbsp;Itanagar</option><option class="boldOptions" value="16965">Assam</option><option class="childOptions" value="16966">&nbsp;&nbsp;&nbsp;&nbsp;Assam (Anywhere)</option><option class="boldOptions" value="16966">Assam (Anywhere)</option><option class="childOptions" value="16967">&nbsp;&nbsp;&nbsp;&nbsp;Guwahati</option><option class="childOptions" value="16968">&nbsp;&nbsp;&nbsp;&nbsp;Jorhat</option><option class="childOptions" value="16969">&nbsp;&nbsp;&nbsp;&nbsp;Silchar</option><option class="boldOptions" value="16970">Bihar</option><option class="childOptions" value="16971">&nbsp;&nbsp;&nbsp;&nbsp;Bihar (Anywhere)</option><option class="boldOptions" value="16971">Bihar (Anywhere)</option><option class="childOptions" value="16972">&nbsp;&nbsp;&nbsp;&nbsp;Bhagalpur</option><option class="childOptions" value="16973">&nbsp;&nbsp;&nbsp;&nbsp;Muzaffarpur</option><option class="childOptions" value="16974">&nbsp;&nbsp;&nbsp;&nbsp;Patna</option><option class="boldOptions" value="16975">Chattisgarh</option><option class="childOptions" value="16976">&nbsp;&nbsp;&nbsp;&nbsp;Chhattisgarh (Anywhere)</option><option class="boldOptions" value="16976">Chhattisgarh (Anywhere)</option><option class="childOptions" value="16977">&nbsp;&nbsp;&nbsp;&nbsp;Raipur</option><option class="boldOptions" value="16978">Goa </option><option class="childOptions" value="16979">&nbsp;&nbsp;&nbsp;&nbsp;Goa (Anywhere)</option><option class="boldOptions" value="16979">Goa (Anywhere)</option><option class="childOptions" value="16980">&nbsp;&nbsp;&nbsp;&nbsp;Panjim / Panaji</option><option class="childOptions" value="16981">&nbsp;&nbsp;&nbsp;&nbsp;Vasco Da Gama</option><option class="boldOptions" value="16982">Gujarat</option><option class="childOptions" value="16983">&nbsp;&nbsp;&nbsp;&nbsp;Gujarat (Anywhere)</option><option class="boldOptions" value="16983">Gujarat (Anywhere)</option><option class="childOptions" value="16985">&nbsp;&nbsp;&nbsp;&nbsp;Anand</option><option class="childOptions" value="17200">&nbsp;&nbsp;&nbsp;&nbsp;Baroda</option><option class="childOptions" value="16986">&nbsp;&nbsp;&nbsp;&nbsp;Bhavnagar</option><option class="childOptions" value="16987">&nbsp;&nbsp;&nbsp;&nbsp;Gandhinagar</option><option class="childOptions" value="16988">&nbsp;&nbsp;&nbsp;&nbsp;Jamnagar</option><option class="childOptions" value="16989">&nbsp;&nbsp;&nbsp;&nbsp;Porbandar</option><option class="childOptions" value="16990">&nbsp;&nbsp;&nbsp;&nbsp;Rajkot</option><option class="childOptions" value="16991">&nbsp;&nbsp;&nbsp;&nbsp;Surat</option><option class="childOptions" value="16992">&nbsp;&nbsp;&nbsp;&nbsp;Vadodara</option><option class="boldOptions" value="16993">Haryana</option><option class="childOptions" value="16994">&nbsp;&nbsp;&nbsp;&nbsp;Haryana (Anywhere)</option><option class="boldOptions" value="16994">Haryana (Anywhere)</option><option class="childOptions" value="16995">&nbsp;&nbsp;&nbsp;&nbsp;Ambala</option><option class="childOptions" value="16996">&nbsp;&nbsp;&nbsp;&nbsp;Chandigarh</option><option class="childOptions" value="16997">&nbsp;&nbsp;&nbsp;&nbsp;Faridabad</option><option class="boldOptions" value="16999">Himachal pradesh</option><option class="childOptions" value="17000">&nbsp;&nbsp;&nbsp;&nbsp;Himachal Pradesh (Anywhere)</option><option class="boldOptions" value="17000">Himachal Pradesh (Anywhere)</option><option class="childOptions" value="17001">&nbsp;&nbsp;&nbsp;&nbsp;Shimla</option><option class="boldOptions" value="17002">Jammu and Kashmir</option><option class="childOptions" value="17004">&nbsp;&nbsp;&nbsp;&nbsp;Jammu</option><option class="childOptions" value="17005">&nbsp;&nbsp;&nbsp;&nbsp;Srinagar</option><option class="boldOptions" value="17006">Jharkhand</option><option class="childOptions" value="17007">&nbsp;&nbsp;&nbsp;&nbsp;Jharkhand (Anywhere)</option><option class="boldOptions" value="17007">Jharkhand (Anywhere)</option><option class="childOptions" value="17008">&nbsp;&nbsp;&nbsp;&nbsp;Bokaro</option><option class="childOptions" value="17009">&nbsp;&nbsp;&nbsp;&nbsp;Dhanbad</option><option class="childOptions" value="17010">&nbsp;&nbsp;&nbsp;&nbsp;Jamshedpur</option><option class="childOptions" value="17011">&nbsp;&nbsp;&nbsp;&nbsp;Ranchi</option><option class="boldOptions" value="17012">Karnataka</option><option class="childOptions" value="17013">&nbsp;&nbsp;&nbsp;&nbsp;Karnataka (Anywhere)</option><option class="boldOptions" value="17013">Karnataka (Anywhere)</option><option class="childOptions" value="17014">&nbsp;&nbsp;&nbsp;&nbsp;Bellary</option><option class="childOptions" value="17016">&nbsp;&nbsp;&nbsp;&nbsp;Bidar</option><option class="childOptions" value="17017">&nbsp;&nbsp;&nbsp;&nbsp;Dharwad</option><option class="childOptions" value="17018">&nbsp;&nbsp;&nbsp;&nbsp;Gulbarga</option><option class="childOptions" value="17019">&nbsp;&nbsp;&nbsp;&nbsp;Hubli</option><option class="childOptions" value="17020">&nbsp;&nbsp;&nbsp;&nbsp;Kolar</option><option class="childOptions" value="17021">&nbsp;&nbsp;&nbsp;&nbsp;Mangalore</option><option class="childOptions" value="17022">&nbsp;&nbsp;&nbsp;&nbsp;Mysoru / Mysore</option><option class="boldOptions" value="17023">Kerala</option><option class="childOptions" value="17024">&nbsp;&nbsp;&nbsp;&nbsp;Kerala (Anywhere)</option><option class="boldOptions" value="17024">Kerala (Anywhere)</option><option class="childOptions" value="17025">&nbsp;&nbsp;&nbsp;&nbsp;Calicut / Kozikhode</option><option class="childOptions" value="17026">&nbsp;&nbsp;&nbsp;&nbsp;Cochin / Kochi / Ernakulam</option><option class="childOptions" value="17027">&nbsp;&nbsp;&nbsp;&nbsp;Kottayam</option><option class="childOptions" value="17028">&nbsp;&nbsp;&nbsp;&nbsp;Palakkad</option><option class="childOptions" value="17029">&nbsp;&nbsp;&nbsp;&nbsp;Thiruvananthapuram</option><option class="childOptions" value="17030">&nbsp;&nbsp;&nbsp;&nbsp;Thrissur</option><option class="boldOptions" value="17031">Madhya Pradesh</option><option class="childOptions" value="17032">&nbsp;&nbsp;&nbsp;&nbsp;Madhya Pradesh (Anywhere)</option><option class="boldOptions" value="17032">Madhya Pradesh (Anywhere)</option><option class="childOptions" value="17033">&nbsp;&nbsp;&nbsp;&nbsp;Bhopal</option><option class="childOptions" value="17034">&nbsp;&nbsp;&nbsp;&nbsp;Gwalior</option><option class="childOptions" value="17035">&nbsp;&nbsp;&nbsp;&nbsp;Indore</option><option class="childOptions" value="17036">&nbsp;&nbsp;&nbsp;&nbsp;Jabalpur</option><option class="childOptions" value="17037">&nbsp;&nbsp;&nbsp;&nbsp;Ujjain</option><option class="boldOptions" value="17038">Maharashtra</option><option class="childOptions" value="17039">&nbsp;&nbsp;&nbsp;&nbsp;Maharashtra (Anywhere)</option><option class="boldOptions" value="17039">Maharashtra (Anywhere)</option><option class="childOptions" value="17040">&nbsp;&nbsp;&nbsp;&nbsp;Ahmednagar</option><option class="childOptions" value="17041">&nbsp;&nbsp;&nbsp;&nbsp;Aurangabad</option><option class="childOptions" value="17288">&nbsp;&nbsp;&nbsp;&nbsp;Jalgaon</option><option class="childOptions" value="17042">&nbsp;&nbsp;&nbsp;&nbsp;Kolhapur</option><option class="childOptions" value="17044">&nbsp;&nbsp;&nbsp;&nbsp;Nagpur</option><option class="childOptions" value="17045">&nbsp;&nbsp;&nbsp;&nbsp;Nasik</option><option class="childOptions" value="17046">&nbsp;&nbsp;&nbsp;&nbsp;Navi Mumbai</option><option class="childOptions" value="17048">&nbsp;&nbsp;&nbsp;&nbsp;Solapur</option><option class="boldOptions" value="17049">Manipur</option><option class="childOptions" value="17050">&nbsp;&nbsp;&nbsp;&nbsp;Manipur (Anywhere)</option><option class="boldOptions" value="17050">Manipur (Anywhere)</option><option class="childOptions" value="17051">&nbsp;&nbsp;&nbsp;&nbsp;Imphal</option><option class="boldOptions" value="17052">Meghalaya</option><option class="childOptions" value="17053">&nbsp;&nbsp;&nbsp;&nbsp;Meghalaya (Anywhere)</option><option class="boldOptions" value="17053">Meghalaya (Anywhere)</option><option class="childOptions" value="17054">&nbsp;&nbsp;&nbsp;&nbsp;Shillong</option><option class="boldOptions" value="17055">Mizoram</option><option class="childOptions" value="17056">&nbsp;&nbsp;&nbsp;&nbsp;Mizoram (Anywhere)</option><option class="boldOptions" value="17056">Mizoram (Anywhere)</option><option class="childOptions" value="17057">&nbsp;&nbsp;&nbsp;&nbsp;Aizawl</option><option class="boldOptions" value="17058">Nagaland</option><option class="childOptions" value="17059">&nbsp;&nbsp;&nbsp;&nbsp;Nagaland (Anywhere)</option><option class="boldOptions" value="17059">Nagaland (Anywhere)</option><option class="childOptions" value="17060">&nbsp;&nbsp;&nbsp;&nbsp;Kohima</option><option class="boldOptions" value="17061">Orrisa</option><option class="childOptions" value="17062">&nbsp;&nbsp;&nbsp;&nbsp;Orrisa (Anywhere)</option><option class="boldOptions" value="17062">Orrisa (Anywhere)</option><option class="childOptions" value="17063">&nbsp;&nbsp;&nbsp;&nbsp;Bhubaneshwar</option><option class="childOptions" value="17064">&nbsp;&nbsp;&nbsp;&nbsp;Cuttack</option><option class="childOptions" value="17065">&nbsp;&nbsp;&nbsp;&nbsp;Puri</option><option class="childOptions" value="17066">&nbsp;&nbsp;&nbsp;&nbsp;Rourkela</option><option class="boldOptions" value="17067">Punjab</option><option class="childOptions" value="17068">&nbsp;&nbsp;&nbsp;&nbsp;Punjab (Anywhere)</option><option class="boldOptions" value="17068">Punjab (Anywhere)</option><option class="childOptions" value="17069">&nbsp;&nbsp;&nbsp;&nbsp;Amritsar</option><option class="childOptions" value="17070">&nbsp;&nbsp;&nbsp;&nbsp;Bathinda</option><option class="childOptions" value="17072">&nbsp;&nbsp;&nbsp;&nbsp;Jalandhar</option><option class="childOptions" value="17073">&nbsp;&nbsp;&nbsp;&nbsp;Kapurthala</option><option class="childOptions" value="17074">&nbsp;&nbsp;&nbsp;&nbsp;Ludhiana</option><option class="childOptions" value="17075">&nbsp;&nbsp;&nbsp;&nbsp;Mohali</option><option class="childOptions" value="17076">&nbsp;&nbsp;&nbsp;&nbsp;Patiala</option><option class="boldOptions" value="17077">Rajasthan</option><option class="childOptions" value="17078">&nbsp;&nbsp;&nbsp;&nbsp;Rajasthan (Anywhere)</option><option class="boldOptions" value="17078">Rajasthan (Anywhere)</option><option class="childOptions" value="17079">&nbsp;&nbsp;&nbsp;&nbsp;Alwar</option><option class="childOptions" value="17080">&nbsp;&nbsp;&nbsp;&nbsp;Bikaner</option><option class="childOptions" value="17081">&nbsp;&nbsp;&nbsp;&nbsp;Jaipur</option><option class="childOptions" value="17082">&nbsp;&nbsp;&nbsp;&nbsp;Jodhpur</option><option class="childOptions" value="17083">&nbsp;&nbsp;&nbsp;&nbsp;Kota</option><option class="childOptions" value="17084">&nbsp;&nbsp;&nbsp;&nbsp;Udaipur</option><option class="boldOptions" value="17085">Sikkim</option><option class="childOptions" value="17086">&nbsp;&nbsp;&nbsp;&nbsp;Sikkim (Anywhere)</option><option class="boldOptions" value="17086">Sikkim (Anywhere)</option><option class="childOptions" value="17087">&nbsp;&nbsp;&nbsp;&nbsp;Gangtok</option><option class="boldOptions" value="17088">Tamil Nadu</option><option class="childOptions" value="17089">&nbsp;&nbsp;&nbsp;&nbsp;Tamil Nadu (Anywhere)</option><option class="boldOptions" value="17089">Tamil Nadu (Anywhere)</option><option class="childOptions" value="17090">&nbsp;&nbsp;&nbsp;&nbsp;Chennai</option><option class="childOptions" value="17091">&nbsp;&nbsp;&nbsp;&nbsp;Coimbatore</option><option class="childOptions" value="17092">&nbsp;&nbsp;&nbsp;&nbsp;Madurai</option><option class="childOptions" value="17093">&nbsp;&nbsp;&nbsp;&nbsp;Nagercoil</option><option class="childOptions" value="17094">&nbsp;&nbsp;&nbsp;&nbsp;Ooty</option><option class="childOptions" value="17095">&nbsp;&nbsp;&nbsp;&nbsp;Salem</option><option class="childOptions" value="17096">&nbsp;&nbsp;&nbsp;&nbsp;Trichy</option><option class="childOptions" value="17097">&nbsp;&nbsp;&nbsp;&nbsp;Tuticorin</option><option class="boldOptions" value="17098">Tripura</option><option class="childOptions" value="17099">&nbsp;&nbsp;&nbsp;&nbsp;Tripura (Anywhere)</option><option class="boldOptions" value="17099">Tripura (Anywhere)</option><option class="childOptions" value="17100">&nbsp;&nbsp;&nbsp;&nbsp;Agartala</option><option class="boldOptions" value="17101">Uttar Pradesh</option><option class="childOptions" value="17102">&nbsp;&nbsp;&nbsp;&nbsp;Uttar Pradesh (Anywhere)</option><option class="boldOptions" value="17102">Uttar Pradesh (Anywhere)</option><option class="childOptions" value="17103">&nbsp;&nbsp;&nbsp;&nbsp;Agra</option><option class="childOptions" value="17104">&nbsp;&nbsp;&nbsp;&nbsp;Allahabad</option><option class="childOptions" value="17105">&nbsp;&nbsp;&nbsp;&nbsp;Faizabad</option><option class="childOptions" value="17106">&nbsp;&nbsp;&nbsp;&nbsp;Ghaziabad</option><option class="childOptions" value="17107">&nbsp;&nbsp;&nbsp;&nbsp;Gorakhpur</option><option class="childOptions" value="17108">&nbsp;&nbsp;&nbsp;&nbsp;Kanpur</option><option class="childOptions" value="17109">&nbsp;&nbsp;&nbsp;&nbsp;Lucknow</option><option class="childOptions" value="17110">&nbsp;&nbsp;&nbsp;&nbsp;Meerut</option><option class="childOptions" value="17111">&nbsp;&nbsp;&nbsp;&nbsp;Muzaffarnagar</option><option class="childOptions" value="17112">&nbsp;&nbsp;&nbsp;&nbsp;Noida/Greater Noida</option><option class="childOptions" value="17113">&nbsp;&nbsp;&nbsp;&nbsp;Varanasi / Banaras</option><option class="boldOptions" value="17114">Uttranchal </option><option class="childOptions" value="17115">&nbsp;&nbsp;&nbsp;&nbsp;Uttranchal (Anywhere)</option><option class="boldOptions" value="17115">Uttranchal (Anywhere)</option><option class="childOptions" value="17116">&nbsp;&nbsp;&nbsp;&nbsp;Dehradun</option><option class="childOptions" value="17117">&nbsp;&nbsp;&nbsp;&nbsp;Nainital</option><option class="childOptions" value="17118">&nbsp;&nbsp;&nbsp;&nbsp;Roorkee</option><option class="boldOptions" value="17119">West Bengal</option><option class="childOptions" value="17120">&nbsp;&nbsp;&nbsp;&nbsp;West Bengal (Anywhere)</option><option class="boldOptions" value="17120">West Bengal (Anywhere)</option><option class="childOptions" value="17121">&nbsp;&nbsp;&nbsp;&nbsp;Asansol</option><option class="childOptions" value="17123">&nbsp;&nbsp;&nbsp;&nbsp;Darjeeling</option><option class="childOptions" value="17122">&nbsp;&nbsp;&nbsp;&nbsp;Durgapur</option><option class="childOptions" value="17124">&nbsp;&nbsp;&nbsp;&nbsp;Kharagpur</option><option class="childOptions" value="17126">&nbsp;&nbsp;&nbsp;&nbsp;Siliguri</option><option class="boldOptions" value="17127">Union Territories</option><option class="childOptions" value="17297">&nbsp;&nbsp;&nbsp;&nbsp;Andaman &amp; Nicobar Islands</option><option class="childOptions" value="17128">&nbsp;&nbsp;&nbsp;&nbsp;Dadra &amp; Nagar Haveli - Silvassa</option><option class="childOptions" value="17129">&nbsp;&nbsp;&nbsp;&nbsp;Daman &amp; Diu</option><option class="childOptions" value="17130">&nbsp;&nbsp;&nbsp;&nbsp;Pondicherry / Puducherry</option><option class="boldOptions" value="17140">Countries</option><option class="childOptions" value="17215">&nbsp;&nbsp;&nbsp;&nbsp;Afghanistan</option><option class="childOptions" value="17202">&nbsp;&nbsp;&nbsp;&nbsp;Africa</option><option class="childOptions" value="17189">&nbsp;&nbsp;&nbsp;&nbsp;Africa (Anywhere)</option><option class="childOptions" value="17298">&nbsp;&nbsp;&nbsp;&nbsp;Asia Pacific</option><option class="childOptions" value="17141">&nbsp;&nbsp;&nbsp;&nbsp;Australia</option><option class="childOptions" value="17188">&nbsp;&nbsp;&nbsp;&nbsp;Australia/ NZ (Anywhere)</option><option class="childOptions" value="17142">&nbsp;&nbsp;&nbsp;&nbsp;Bahrain </option><option class="childOptions" value="17143">&nbsp;&nbsp;&nbsp;&nbsp;Bangladesh</option><option class="childOptions" value="17186">&nbsp;&nbsp;&nbsp;&nbsp;Bhutan</option><option class="childOptions" value="17218">&nbsp;&nbsp;&nbsp;&nbsp;Brazil</option><option class="childOptions" value="17144">&nbsp;&nbsp;&nbsp;&nbsp;Canada</option><option class="childOptions" value="17145">&nbsp;&nbsp;&nbsp;&nbsp;China</option><option class="childOptions" value="17221">&nbsp;&nbsp;&nbsp;&nbsp;Europe </option><option class="childOptions" value="17193">&nbsp;&nbsp;&nbsp;&nbsp;Europe (Anywhere)</option><option class="childOptions" value="17146">&nbsp;&nbsp;&nbsp;&nbsp;France </option><option class="childOptions" value="17147">&nbsp;&nbsp;&nbsp;&nbsp;Germany</option><option class="childOptions" value="17194">&nbsp;&nbsp;&nbsp;&nbsp;Gulf / Middle East</option><option class="childOptions" value="17148">&nbsp;&nbsp;&nbsp;&nbsp;Hong Kong</option><option class="childOptions" value="17150">&nbsp;&nbsp;&nbsp;&nbsp;Indonesia</option><option class="childOptions" value="17151">&nbsp;&nbsp;&nbsp;&nbsp;Iran</option><option class="childOptions" value="17152">&nbsp;&nbsp;&nbsp;&nbsp;Iraq</option><option class="childOptions" value="17153">&nbsp;&nbsp;&nbsp;&nbsp;Ireland</option><option class="childOptions" value="17154">&nbsp;&nbsp;&nbsp;&nbsp;Israel</option><option class="childOptions" value="17155">&nbsp;&nbsp;&nbsp;&nbsp;Italy </option><option class="childOptions" value="17156">&nbsp;&nbsp;&nbsp;&nbsp;Japan </option><option class="childOptions" value="17219">&nbsp;&nbsp;&nbsp;&nbsp;Japan (Anywhere)</option><option class="childOptions" value="17157">&nbsp;&nbsp;&nbsp;&nbsp;Kenya</option><option class="childOptions" value="17216">&nbsp;&nbsp;&nbsp;&nbsp;Kenya (Anywhere)</option><option class="childOptions" value="17158">&nbsp;&nbsp;&nbsp;&nbsp;Kuwait </option><option class="childOptions" value="17206">&nbsp;&nbsp;&nbsp;&nbsp;Kuwait (Anywhere)</option><option class="childOptions" value="17289">&nbsp;&nbsp;&nbsp;&nbsp;Libya</option><option class="childOptions" value="17159">&nbsp;&nbsp;&nbsp;&nbsp;Luxembourg</option><option class="childOptions" value="17160">&nbsp;&nbsp;&nbsp;&nbsp;Malaysia</option><option class="childOptions" value="17161">&nbsp;&nbsp;&nbsp;&nbsp;Mauritius</option><option class="childOptions" value="17291">&nbsp;&nbsp;&nbsp;&nbsp;Mozambique</option><option class="childOptions" value="17185">&nbsp;&nbsp;&nbsp;&nbsp;Nepal</option><option class="childOptions" value="17162">&nbsp;&nbsp;&nbsp;&nbsp;Netherlands</option><option class="childOptions" value="17163">&nbsp;&nbsp;&nbsp;&nbsp;New Zealand</option><option class="childOptions" value="17164">&nbsp;&nbsp;&nbsp;&nbsp;Nigeria</option><option class="childOptions" value="17290">&nbsp;&nbsp;&nbsp;&nbsp;North Africa</option><option class="childOptions" value="17191">&nbsp;&nbsp;&nbsp;&nbsp;North America (Anywhere)</option><option class="childOptions" value="17165">&nbsp;&nbsp;&nbsp;&nbsp;Norway</option><option class="childOptions" value="17166">&nbsp;&nbsp;&nbsp;&nbsp;Oman </option><option class="childOptions" value="17208">&nbsp;&nbsp;&nbsp;&nbsp;Oman (Anywhere)</option><option class="childOptions" value="17187">&nbsp;&nbsp;&nbsp;&nbsp;Pakistan</option><option class="childOptions" value="17212">&nbsp;&nbsp;&nbsp;&nbsp;Paradip</option><option class="childOptions" value="17293">&nbsp;&nbsp;&nbsp;&nbsp;Philippines</option><option class="childOptions" value="17167">&nbsp;&nbsp;&nbsp;&nbsp;Portugal</option><option class="childOptions" value="17168">&nbsp;&nbsp;&nbsp;&nbsp;Qatar </option><option class="childOptions" value="17201">&nbsp;&nbsp;&nbsp;&nbsp;Qatar (Anywhere)</option><option class="childOptions" value="17169">&nbsp;&nbsp;&nbsp;&nbsp;Russia</option><option class="childOptions" value="17190">&nbsp;&nbsp;&nbsp;&nbsp;S.E. Asia (Anywhere)</option><option class="childOptions" value="17170">&nbsp;&nbsp;&nbsp;&nbsp;Saudi Arabia </option><option class="childOptions" value="17199">&nbsp;&nbsp;&nbsp;&nbsp;Saudi Arabia (Anywhere)</option><option class="childOptions" value="17171">&nbsp;&nbsp;&nbsp;&nbsp;Singapore</option><option class="childOptions" value="17172">&nbsp;&nbsp;&nbsp;&nbsp;South Africa </option><option class="childOptions" value="17192">&nbsp;&nbsp;&nbsp;&nbsp;South America (Anywhere)</option><option class="childOptions" value="17173">&nbsp;&nbsp;&nbsp;&nbsp;South Korea</option><option class="childOptions" value="17174">&nbsp;&nbsp;&nbsp;&nbsp;Spain</option><option class="childOptions" value="17175">&nbsp;&nbsp;&nbsp;&nbsp;Sri Lanka</option><option class="childOptions" value="17176">&nbsp;&nbsp;&nbsp;&nbsp;Sweden</option><option class="childOptions" value="17177">&nbsp;&nbsp;&nbsp;&nbsp;Switzerland</option><option class="childOptions" value="17178">&nbsp;&nbsp;&nbsp;&nbsp;Taiwan</option><option class="childOptions" value="17179">&nbsp;&nbsp;&nbsp;&nbsp;Thailand</option><option class="childOptions" value="17180">&nbsp;&nbsp;&nbsp;&nbsp;Turkey</option><option class="childOptions" value="17211">&nbsp;&nbsp;&nbsp;&nbsp;Uganda (Any where)</option><option class="childOptions" value="17181">&nbsp;&nbsp;&nbsp;&nbsp;UK </option><option class="childOptions" value="17210">&nbsp;&nbsp;&nbsp;&nbsp;UK (Anywhere)</option><option class="childOptions" value="17182">&nbsp;&nbsp;&nbsp;&nbsp;United Arab Emirates </option><option class="childOptions" value="17198">&nbsp;&nbsp;&nbsp;&nbsp;United Arab Emirates (Anywhere)</option><option class="childOptions" value="17183">&nbsp;&nbsp;&nbsp;&nbsp;US </option><option class="childOptions" value="17214">&nbsp;&nbsp;&nbsp;&nbsp;US (Anywhere)</option><option class="childOptions" value="17292">&nbsp;&nbsp;&nbsp;&nbsp;Vietnam</option><option class="childOptions" value="17184">&nbsp;&nbsp;&nbsp;&nbsp;Yemen</option><option class="boldOptions" value="17194">Gulf / Middle East</option><option class="childOptions" value="17220">&nbsp;&nbsp;&nbsp;&nbsp;Gulf / Middle East (Anywhere)</option><option class="boldOptions" value="17203">Mumbai/Bombay</option><option class="boldOptions" value="17207">Anywhere in Saudi Arabia</option><option class="boldOptions" value="17209">Thane</option><option class="boldOptions" value="17213">Delhi and NCR</option><option class="boldOptions" value="17220">Gulf / Middle East (Anywhere)</option><option class="childOptions" value="17196">&nbsp;&nbsp;&nbsp;&nbsp;Abu Dhabi</option><option class="childOptions" value="17133">&nbsp;&nbsp;&nbsp;&nbsp;Abudhabi</option><option class="childOptions" value="17135">&nbsp;&nbsp;&nbsp;&nbsp;Amman</option><option class="childOptions" value="17134">&nbsp;&nbsp;&nbsp;&nbsp;Doha</option><option class="childOptions" value="17132">&nbsp;&nbsp;&nbsp;&nbsp;Dubai</option><option class="childOptions" value="17138">&nbsp;&nbsp;&nbsp;&nbsp;Jeddah</option><option class="childOptions" value="17137">&nbsp;&nbsp;&nbsp;&nbsp;Muscat</option><option class="childOptions" value="17136">&nbsp;&nbsp;&nbsp;&nbsp;Riyadh</option><option class="childOptions" value="17139">&nbsp;&nbsp;&nbsp;&nbsp;Sharjah</option><option class="boldOptions" value="17222">Mumbai</option><option class="boldOptions" value="17223">Delhi</option></select>
+		</div>
+		
+		<div class="selectBox industrySel w203 mB8">
+			<span class="selectArrow">&nbsp;</span>
+			<div class="selectOutput w150">Select Industry</div>
+			<select id="industryId" name="industryId" class="w203 formInput">
+				<option value="">Select Industry</option>
+				
+					<option value="15863">Accounting/Banking/Financial Services/Stock broking</option>
+				
+					<option value="15864">Agriculture/Forestry/Fishing</option>
+				
+					<option value="15865">Apparel/Garments/Fashion</option>
+				
+					<option value="15866">Architecture/Interior Design</option>
+				
+					<option value="15867">Automobiles</option>
+				
+					<option value="15868">Biotechnology/Pharmaceutical/Medicine/Healthcare</option>
+				
+					<option value="15869">Call Centres/BPO/ITES</option>
+				
+					<option value="15871">Construction/Cement/Metal/Steel/Iron</option>
+				
+					<option value="15872">Consulting Services</option>
+				
+					<option value="15873">Consumer Durables/FMCG</option>
+				
+					<option value="15874">Defence/Security/Law Enforcement</option>
+				
+					<option value="15875">Educational/Training</option>
+				
+					<option value="15876">Engineering/Projects/Infrastructure/Power/Energy</option>
+				
+					<option value="15877">Entertainment/Advertising/Media</option>
+				
+					<option value="15878">Export/Import</option>
+				
+					<option value="15870">Food Services/Restaurant/Hotel/Hospitality</option>
+				
+					<option value="15879">Gems &amp; Jewellery</option>
+				
+					<option value="15880">Government Sector</option>
+				
+					<option value="15884">Insurance</option>
+				
+					<option value="15885">Internet/Dot com/ISP</option>
+				
+					<option value="15882">IT-Hardware/Networking</option>
+				
+					<option value="15883">IT-Software</option>
+				
+					<option value="15886">Law/Legal Firms</option>
+				
+					<option value="15887">Logistics/Courier</option>
+				
+					<option value="15888">Manufacturing</option>
+				
+					<option value="15889">Marine/Shipping</option>
+				
+					<option value="15890">NGO/Social Services</option>
+				
+					<option value="15900">Others</option>
+				
+					<option value="15891">Petrochemicals/Petroleum/Oil and Gas</option>
+				
+					<option value="15892">Printing/Packaging</option>
+				
+					<option value="15893">Real Estate</option>
+				
+					<option value="15894">Recruitment/Placement Agencies</option>
+				
+					<option value="15895">Research/Surveyor/MR</option>
+				
+					<option value="15896">Retailing/Merchandising</option>
+				
+					<option value="15897">Sports/Recreation</option>
+				
+					<option value="15898">Telecom</option>
+				
+					<option value="15881">Travel/Tourism/Airlines</option>
+				
+					<option value="15899">Warehousing</option>
+				
+			</select>
+		</div>		
+
+		<label class="fLt" style="font-weight:bold;">Exp(Years) :</label>
+		<div class="selectBox expFrSel w80 mB8 mR10">
+			<span class="selectArrow">&nbsp;</span>
+			<div class="selectOutput w25">Min</div>
+			<select id="expFromId" name="expFrom" class="w80 formInput">
+				<option value="">Min</option>
+				
+					<option value="0">0</option>
+				
+					<option value="1">1</option>
+				
+					<option value="2">2</option>
+				
+					<option value="3">3</option>
+				
+					<option value="4">4</option>
+				
+					<option value="5">5</option>
+				
+					<option value="6">6</option>
+				
+					<option value="7">7</option>
+				
+					<option value="8">8</option>
+				
+					<option value="9">9</option>
+				
+					<option value="10">10</option>
+				
+					<option value="11">11</option>
+				
+					<option value="12">12</option>
+				
+					<option value="13">13</option>
+				
+					<option value="14">14</option>
+				
+					<option value="15">15</option>
+				
+					<option value="16">16</option>
+				
+					<option value="17">17</option>
+				
+					<option value="18">18</option>
+				
+					<option value="19">19</option>
+				
+					<option value="20">20</option>
+				
+					<option value="21">21</option>
+				
+					<option value="22">22</option>
+				
+					<option value="23">23</option>
+				
+					<option value="24">24</option>
+				
+					<option value="25">25</option>
+				
+					<option value="26">26</option>
+				
+					<option value="27">27</option>
+				
+					<option value="28">28</option>
+				
+					<option value="29">29</option>
+				
+					<option value="30">30</option>
+				
+					<option value="31">31</option>
+				
+					<option value="32">32</option>
+				
+					<option value="33">33</option>
+				
+					<option value="34">34</option>
+				
+					<option value="35">35</option>
+				
+					<option value="36">36</option>
+				
+					<option value="37">37</option>
+				
+					<option value="38">38</option>
+				
+					<option value="39">39</option>
+				
+					<option value="40">40</option>
+				
+					<option value="41">41</option>
+				
+					<option value="42">42</option>
+				
+					<option value="43">43</option>
+				
+					<option value="44">44</option>
+				
+					<option value="45">45</option>
+				
+					<option value="46">46</option>
+				
+					<option value="47">47</option>
+				
+					<option value="48">48</option>
+				
+					<option value="49">49</option>
+				
+					<option value="50">50</option>
+				
+			</select>
+		</div>
+		
+		<label class="fLt" style="clear:none;">to</label>
+		
+		<div class="selectBox expToSel w80 mB8 mR10">
+			<span class="selectArrow">&nbsp;</span>
+			<div class="selectOutput w25">Max</div>
+			<select id="expToId" name="expTo" class="w80 formInput">
+				<option value="">Max</option>
+				
+					<option value="0">0</option>
+				
+					<option value="1">1</option>
+				
+					<option value="2">2</option>
+				
+					<option value="3">3</option>
+				
+					<option value="4">4</option>
+				
+					<option value="5">5</option>
+				
+					<option value="6">6</option>
+				
+					<option value="7">7</option>
+				
+					<option value="8">8</option>
+				
+					<option value="9">9</option>
+				
+					<option value="10">10</option>
+				
+					<option value="11">11</option>
+				
+					<option value="12">12</option>
+				
+					<option value="13">13</option>
+				
+					<option value="14">14</option>
+				
+					<option value="15">15</option>
+				
+					<option value="16">16</option>
+				
+					<option value="17">17</option>
+				
+					<option value="18">18</option>
+				
+					<option value="19">19</option>
+				
+					<option value="20">20</option>
+				
+					<option value="21">21</option>
+				
+					<option value="22">22</option>
+				
+					<option value="23">23</option>
+				
+					<option value="24">24</option>
+				
+					<option value="25">25</option>
+				
+					<option value="26">26</option>
+				
+					<option value="27">27</option>
+				
+					<option value="28">28</option>
+				
+					<option value="29">29</option>
+				
+					<option value="30">30</option>
+				
+					<option value="31">31</option>
+				
+					<option value="32">32</option>
+				
+					<option value="33">33</option>
+				
+					<option value="34">34</option>
+				
+					<option value="35">35</option>
+				
+					<option value="36">36</option>
+				
+					<option value="37">37</option>
+				
+					<option value="38">38</option>
+				
+					<option value="39">39</option>
+				
+					<option value="40">40</option>
+				
+					<option value="41">41</option>
+				
+					<option value="42">42</option>
+				
+					<option value="43">43</option>
+				
+					<option value="44">44</option>
+				
+					<option value="45">45</option>
+				
+					<option value="46">46</option>
+				
+					<option value="47">47</option>
+				
+					<option value="48">48</option>
+				
+					<option value="49">49</option>
+				
+					<option value="50">50</option>
+				
+			</select>
+		</div>
+		
+		<div class="selectBox functionSel w203 mL2 mB8 mR10">
+			<span class="selectArrow">&nbsp;</span>
+			<div class="selectOutput w150">Select JobFunction</div>
+			<select id="functionId" name="functionId" class="w203 formInput">
+				<option value="">Select JobFunction</option>
+				
+					<option value="85">Agriculture</option>
+				
+					<option value="81">Aviation</option>
+				
+					<option value="71">Banking &amp; Insurance</option>
+				
+					<option value="89">Corporate Consulting</option>
+				
+					<option value="10197">Counsellor</option>
+				
+					<option value="10180">Driver &amp; Conductor</option>
+				
+					<option value="84">Engineering, Civil and Architecture</option>
+				
+					<option value="10200">Entertainment &amp; Media</option>
+				
+					<option value="87">Fashion</option>
+				
+					<option value="72">Finance &amp; Accounting</option>
+				
+					<option value="82">Healthcare &amp; Medical</option>
+				
+					<option value="86">Hospitality &amp; Tourism</option>
+				
+					<option value="10203">Housekeeping Staff</option>
+				
+					<option value="73">Human Resources</option>
+				
+					<option value="79">IT-Hardware/Software</option>
+				
+					<option value="70">ITES/BPO/KPO/Support</option>
+				
+					<option value="88">Journalism &amp; Creative</option>
+				
+					<option value="74">Law,Legal</option>
+				
+					<option value="83">Learning &amp; Library</option>
+				
+					<option value="90">Marine Services</option>
+				
+					<option value="75">Marketing/Advertising</option>
+				
+					<option value="69">Office Administration</option>
+				
+					<option value="10202">Others</option>
+				
+					<option value="10199">Poultry &amp; Animal Husbandry</option>
+				
+					<option value="92">Printing &amp; Packaging</option>
+				
+					<option value="77">Production and Manufacturing</option>
+				
+					<option value="78">QC / QA  &amp; Testing</option>
+				
+					<option value="94">Real Estate &amp; Housing</option>
+				
+					<option value="95">Retail &amp; Cinema</option>
+				
+					<option value="76">Sales &amp; Business Dev</option>
+				
+					<option value="91">Security/Intelligence</option>
+				
+					<option value="93">Social Services</option>
+				
+					<option value="80">Supply Chain/Logistic</option>
+				
+					<option value="96">Telecom/ISP/Cable TV</option>
+				
+					<option value="97">Trade &amp; Import/Export</option>
+				
+					<option value="10204">Warehouse</option>
+				
+			</select>
+		</div>
+		
+		<div class="fLt lengthError">
+			<input id="companyName" name="companyName" class="w185 fLt formInput" minlength="3" placeholder="Company" type="text" value="" maxlength="128">
+		</div>
+		<br class="clear">
+		
+
+		<input id="from" name="fromDateStr" class="w80 fLt formInput hasDatepicker" style="margin-right:2px;" placeholder="Date From" type="text" value="" readonly="readonly"><img class="ui-datepicker-trigger" src="/resources/images/calendar.gif" alt="..." title="...">
+		<input id="to" name="toDateStr" class="w80 fLt formInput hasDatepicker" style="margin-right:2px;" placeholder="Date To" type="text" value="" readonly="readonly"><img class="ui-datepicker-trigger" src="/resources/images/calendar.gif" alt="..." title="...">
+		
+		<div class="fLt mL2 mT8" style="width:214px;">
+			<input id="jobLocation1" name="jobLocation" class="fLt mR5 mT2 formInput" type="radio" value="India">
+			<span class="fLt mR15">India</span>
+			
+			<input id="jobLocation2" name="jobLocation" class="fLt mL10 mT2 mR5 formInput" type="radio" value="Global">
+			<span class="fLt mR15">Global</span>
+			
+			<input id="isWalkin1" name="isWalkin" class="fLt mR5 formInput" type="checkbox" value="true"><input type="hidden" name="_isWalkin" value="on">
+			<span class="fLt">Walk In</span>
+		</div>
+		<div class="fLt">
+			<input type="button" class="form_submit_mn_btn mR5 fLt" id="goButtnId" value="Search">
+			<input type="button" onclick="javascript:saveSearch();" class="form_submit_mn_btn saveSearchBtn fLt mL5" value="Save Search">
+			<br class="clear">
+		</div>
+		<br class="clear">
+	</form>
+</div><!-- jobSearchBox -->
+
+  		</div><!-- jobSearchBoxMain -->
+  		
+  		
+  		
+  		
+  		<!-- This is a div in which job search result page will rendered during searching a job -->
+  		<div id="jobSearchDivId">
+  			
+
+
+
+
+<script src="/resources/js/datatable/js/jquery.dataTables.js"></script>
+<script src="/resources/js/jobsResult.js"></script>
+
+<input type="hidden" value="10" id="jobPositionListSize">
+
+
+<div id="jobSearchResultDiv" class="mT10" style="">
+	
+
+<aside class="jobLeftSide">
+			<div class="filterBox">
+              <p><strong>Narrow By</strong></p>
+              <span class="fLt mT5">Filters applied</span>
+              <div title="clear" class="GrybtnG fLt mL10" id="clearAllFilters"><a class="GrybtnG" href="javascript:void(0);">Clear All</a></div>
+              <br class="clear">
+              <div id="removeFilters">
+
+              </div>
+			</div><!-- filter box -->
+			
+			<div class="jobExpandBox" id="narrowbyfilters">
+				<ul>
+					
+						<li class="categoryEC plusimageapply">Date of Posting
+							<ul class="selectedimage" style="display: none;">
+								
+									
+				         				<li><input type="radio" name="date" class="fLt mR5" id="dateradio1" value="1 week ago"><span class="fLt w130">1 week ago</span> <br class="clear"></li>
+				         				<script>
+				         				    $('#dateradio1').data("jobids",[417414, 418131, 418130, 417527, 418128, 417390, 418126, 417422, 418127, 417421]);
+				         				</script>
+			         				
+								
+									
+								
+									
+								
+									
+								
+							</ul>
+						</li>
+					
+					
+					
+						<li class="categoryEC plusimageapply">Management Level
+							<ul class="selectedimage" style="display: none;">
+								
+			         				<li><input type="checkbox" name="level" class="fLt mR5" id="levelCheckbox1" value="Middle Management  - Manager, Assistant Manager"><span class="fLt w130">Middle Management  - Manager, Assistant Manager(7)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#levelCheckbox1').data("jobids",[417422, 417421, 418131, 418130, 418128, 418127, 418126]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="level" class="fLt mR5" id="levelCheckbox2" value="Senior Management  - Sr. Manager, General Manager"><span class="fLt w130">Senior Management  - Sr. Manager, General Manager(1)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#levelCheckbox2').data("jobids",[417414]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="level" class="fLt mR5" id="levelCheckbox3" value="Junior - Executive, Assistant"><span class="fLt w130">Junior - Executive, Assistant(2)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#levelCheckbox3').data("jobids",[417527, 417390]);
+			         				</script>
+								
+							</ul>
+						</li>
+					
+					
+						<li class="categoryEC plusimageapply">Experience
+							<ul class="selectedimage" style="display: none;">
+								
+									
+				         				<li><input type="checkbox" name="experience" class="fLt mR5" id="experienceCheckbox1" value="5 to 10 years"><span class="fLt w130">5 to 10 years(4)</span><br class="clear"></li>
+				         				<script>
+				         				    $('#experienceCheckbox1').data("jobids",[417414, 417390, 417422, 417421]);
+				         				</script>
+				         			
+								
+									
+				         				<li><input type="checkbox" name="experience" class="fLt mR5" id="experienceCheckbox2" value="More than 10 years"><span class="fLt w130">More than 10 years(4)</span><br class="clear"></li>
+				         				<script>
+				         				    $('#experienceCheckbox2').data("jobids",[417414, 417390, 417422, 417421]);
+				         				</script>
+				         			
+								
+									
+								
+									
+				         				<li><input type="checkbox" name="experience" class="fLt mR5" id="experienceCheckbox4" value="3 to 5 years"><span class="fLt w130">3 to 5 years(4)</span><br class="clear"></li>
+				         				<script>
+				         				    $('#experienceCheckbox4').data("jobids",[417414, 417390, 417422, 417421]);
+				         				</script>
+				         			
+								
+									
+								
+							</ul>
+						</li>
+					
+					
+					
+					
+						<li class="categoryEC plusimageapply">Company
+							<ul class="selectedimage" style="display: none;">
+								
+			         				<li><input type="checkbox" name="company" class="fLt mR5" id="companyCheckbox1" value="Company NA"><span class="fLt w130">Company NA(1)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#companyCheckbox1').data("jobids",[417527]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="company" class="fLt mR5" id="companyCheckbox2" value="Tieto"><span class="fLt w130">Tieto(4)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#companyCheckbox2').data("jobids",[417422, 417421, 417414, 417390]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="company" class="fLt mR5" id="companyCheckbox3" value="Asiapower Overseas Employment Services"><span class="fLt w130">Asiapower Overseas Employment Services(2)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#companyCheckbox3').data("jobids",[418131, 418130]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="company" class="fLt mR5" id="companyCheckbox4" value="Jaiprakash Power Ventures Limited"><span class="fLt w130">Jaiprakash Power Ventures Limited(3)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#companyCheckbox4').data("jobids",[418128, 418127, 418126]);
+			         				</script>
+								
+							</ul>
+						</li>
+					
+					
+						<li class="categoryEC plusimageapply">Industry
+							<ul class="selectedimage" style="display: none;">
+								
+			         				<li><input type="checkbox" name="industry" class="fLt mR5" id="industryCheckbox1" value="Recruitment/Placement Agencies"><span class="fLt w130">Recruitment/Placement Agencies(2)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#industryCheckbox1').data("jobids",[418131, 418130]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="industry" class="fLt mR5" id="industryCheckbox2" value="Others"><span class="fLt w130">Others(1)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#industryCheckbox2').data("jobids",[417527]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="industry" class="fLt mR5" id="industryCheckbox3" value="Engineering/Projects/Infrastructure/Power/Energy"><span class="fLt w130">Engineering/Projects/Infrastructure/Power/Energy(3)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#industryCheckbox3').data("jobids",[418128, 418127, 418126]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="industry" class="fLt mR5" id="industryCheckbox4" value="IT-Software"><span class="fLt w130">IT-Software(4)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#industryCheckbox4').data("jobids",[417422, 417421, 417414, 417390]);
+			         				</script>
+								
+							</ul>
+						</li>
+					
+					
+						<li class="categoryEC plusimageapply">Job Locations
+							<ul class="selectedimage" style="display: none;">
+								
+			         				<li><input type="checkbox" name="joblocation" class="fLt mR5" id="joblocationCheckbox1" value="Saudi Arabia "><span class="fLt w130">Saudi Arabia (2)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#joblocationCheckbox1').data("jobids",[418131, 418130]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="joblocation" class="fLt mR5" id="joblocationCheckbox2" value="Pune"><span class="fLt w130">Pune(4)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#joblocationCheckbox2').data("jobids",[417414, 417390, 417422, 417421]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="joblocation" class="fLt mR5" id="joblocationCheckbox3" value="Noida"><span class="fLt w130">Noida(3)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#joblocationCheckbox3').data("jobids",[418128, 418126, 418127]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="joblocation" class="fLt mR5" id="joblocationCheckbox4" value="Kolkata"><span class="fLt w130">Kolkata(1)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#joblocationCheckbox4').data("jobids",[417527]);
+			         				</script>
+								
+							</ul>
+						</li>
+					
+					
+		
+						<li class="categoryEC plusimageapply">Walkin Locations
+							<ul class="selectedimage" style="display: none;">
+								
+			         				<li><input type="checkbox" name="walkinlocation" class="fLt mR5" id="walkinlocationCheckbox1" value="Bengaluru / Bangalore"><span class="fLt w130">Bengaluru / Bangalore(3)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#walkinlocationCheckbox1').data("jobids",[417414, 417422, 417421]);
+			         				</script>
+								
+			         				<li><input type="checkbox" name="walkinlocation" class="fLt mR5" id="walkinlocationCheckbox2" value="Karnataka"><span class="fLt w130">Karnataka(1)</span><br class="clear"></li>
+			         				<script>
+			         				    $('#walkinlocationCheckbox2').data("jobids",[417390]);
+			         				</script>
+								
+							</ul>
+						</li>
+					
+				</ul>
+			</div>
+			<!-- filterContent -->
+		</aside>
+		<!-- jobLeftSide -->		
+	
+
+
+
+<script>
+    $(document).ready(function (){
+        var rate;
+        $(".starRating1").each(function() {
+            rate = $(this).data("rating");
+            if(rate=="undefined" || rate == null || rate<1)
+                rate = 1;
+            $('span#'+this.id) .html('<img src="/resources/images/rating'+rate+'.png" /><span style="display:none">'+rate+ '</span>');
+        });
+        $("#jobSearchTable_paginate").click(function (){
+            $(".starRating1").each(function() {
+                rate = $(this).data("rating");
+                if(rate=="undefined" || rate == null || rate<1)
+                    rate = 1;
+                $('span#'+this.id) .html('<img src="/resources/images/rating'+rate+'.png" /><span style="display:none">'+rate+ '</span>');
+            });
+        });
+        $("#narrowbyfilters").click(function (){
+            $(".starRating1").each(function() {
+                rate = $(this).data("rating");
+                if(rate=="undefined" || rate == null || rate<1)
+                    rate = 1;
+                $('span#'+this.id) .html('<img src="/resources/images/rating'+rate+'.png" /><span style="display:none">'+rate+ '</span>');
+            });
+        });
+        $("#checkAllId").click(function(){
+            $('[name="jobIdCheckBox"]').each(function() {
+                $(this).prop('checked', true);
+            });
+        });
+        $("#uncheckAllId").click(function(){
+            $('[name="jobIdCheckBox"]').each(function() {
+                $(this).prop('checked', false);
+            });
+        });
+        $("#sendJobToFriendId").click(function(){
+            var jobsList = "";
+            var checkedFlag = false;
+            $('[name="jobIdCheckBox"]').each(function() {
+                if($(this).is(":checked")) {
+                    jobsList += ($(this).val()+",");
+                    checkedFlag = true;
+                }
+            });
+            if(checkedFlag) {
+                jobsList = jobsList.substring(0,jobsList.length-1);
+                openPopUp('/sendJobFriend/'+jobsList,'popUpPageConatiner');
+            } else {
+                alert("Check atleast one job.");
+                return false;
+            }
+        });
+        $("#saveJobsId").click(function(){
+            var jobsList = "";
+            var checkedFlag = false;
+            $('[name="jobIdCheckBox"]').each(function() {
+                if($(this).is(":checked")) {
+                    jobsList += ($(this).val()+",");
+                    checkedFlag = true;
+                }
+            });
+            if(checkedFlag) {
+                jobsList = jobsList.substring(0,jobsList.length-1);
+                var onVerified = function(response){
+                    $.each(response, function(key, value) { 
+                        if(key="errorMessage")
+                            $("#saveJobsMessageId").prop("class","errorMessage");
+                        else
+                            $("#saveJobsMessageId").prop("class","successMessage");
+                        AJAX_GET_HTML("/savedJobsByCandidate", "savedJobsDiv");
+                        $("#saveJobsMessageId").text(value);
+                        $('#signInId').toggle();
+                    });
+                };
+                AJAX_GET_JSON('/saveJobsList/'+jobsList, onVerified);
+                return false;
+            } else {
+                alert("Check atleast one job.");
+                return false;
+            }
+            return false;
+        });
+	
+    });
+    function relevanceClickHandler(){
+        $("#relevanceColumn").trigger("click");
+        $(".starRating1").each(function() {
+            rate = $(this).data("rating");
+            if(rate=="undefined" || rate == null || rate<1)
+                rate = 1;
+            $('span#'+this.id) .html('<img src="/resources/images/rating'+rate+'.png" /><span style="display:none">'+rate+ '</span>');
+        });
+    }
+    function dateClickHandler(){
+        $("#dateColumn").trigger("click");
+        $(".starRating1").each(function() {
+            rate = $(this).data("rating");
+            if(rate=="undefined" || rate == null || rate<1)
+                rate = 1;
+            $('span#'+this.id) .html('<img src="/resources/images/rating'+rate+'.png" /><span style="display:none">'+rate+ '</span>');
+        });
+    }
+</script>
+<section class="jobPostingContainer outerShadow">
+	<div class="fRt">Sort by: <span id="sortbyDate"><a href="javascript:dateClickHandler()">Date</a></span>
+	
+	</div>
+	<div id="jobSearchTable_wrapper" class="dataTables_wrapper" role="grid"><div class="clear"></div><div class="hidden"><div class="dataTables_filter" id="jobSearchTable_filter"><label>Search: <input type="text" aria-controls="jobSearchTable"></label></div></div><div class="dataTables_info" id="jobSearchTable_info">Showing 1 to 10 of 10 entries</div><div class="dataTables_paginate paging_full_numbers" id="jobSearchTable_paginate"><a tabindex="0" class="first paginate_button paginate_button_disabled" id="jobSearchTable_first">First</a><a tabindex="0" class="previous paginate_button paginate_button_disabled" id="jobSearchTable_previous">Previous</a><span><a tabindex="0" class="paginate_active">1</a></span><a tabindex="0" class="next paginate_button paginate_button_disabled" id="jobSearchTable_next">Next</a><a tabindex="0" class="last paginate_button paginate_button_disabled" id="jobSearchTable_last">Last</a></div><table id="jobSearchTable" style="width:502px;" class="dataTable" aria-describedby="jobSearchTable_info">
+		<thead>
+			<tr role="row"><th style="display: none; width: 0px;" class="sorting" role="columnheader" tabindex="0" aria-controls="jobSearchTable" rowspan="1" colspan="1" aria-label="Id: activate to sort column ascending">Id</th><th style="display: none; width: 0px;" class="sorting" role="columnheader" tabindex="0" aria-controls="jobSearchTable" rowspan="1" colspan="1" aria-label="Detail: activate to sort column ascending">Detail</th><th style="display: none; width: 0px;" id="relevanceColumn" class="sorting_desc" role="columnheader" tabindex="0" aria-controls="jobSearchTable" rowspan="1" colspan="1" aria-sort="descending" aria-label="Relevance: activate to sort column ascending">Relevance</th><th style="display: none; width: 0px;" id="dateColumn" class="sorting_desc" role="columnheader" tabindex="0" aria-controls="jobSearchTable" rowspan="1" colspan="1" aria-label="Date: activate to sort column ascending">Date</th></tr>
+		</thead>
+		
+	<tbody id="jobSearchTableBody" role="alert" aria-live="polite" aria-relevant="all"><tr class="odd">
+				<td style="display: none" class=" ">417527</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="417527" data-url="/job-detail-417527/Company NA/Kolkata/Hospital Administrator"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="/images/printAd/2014/7/30/9758467.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=/images/printAd/2014/7/30/9758467.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-417527/Company NA/Kolkata/Hospital Administrator"><strong>Hospital Administrator</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-33537-New/Company NA-jobs">Company NA </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Kolkata-jobs">Kolkata</a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										An experienced medically qualified Hospital Administrator (preferably with Army background in senior
+									
+								
+								<div> <a href="/job-detail-417527/Company NA/Kolkata/Hospital Administrator">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/417527">More jobs like this</a> | <a href="/allJobsByEmployer/33537">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/NONASCENTJOB">All Non Ascent Jobs</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 14:17:42.0</td>
+			</tr><tr class="even">
+				<td style="display: none" class=" ">417422</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="417422" data-url="/job-detail-417422/Tieto/Pune/Consultant"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="/images/printAd/2014/7/30/Teito.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=/images/printAd/2014/7/30/Teito.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-417422/Tieto/Pune/Consultant"><strong>Consultant</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-36528-New/Tieto-jobs">Tieto </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Pune-jobs">Pune</a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										4-12 yrs exp. Energy Components, Oil &amp; Gas (Upstream) domain knowledge, with any of the following te
+									
+								
+								<div> <a href="/job-detail-417422/Tieto/Pune/Consultant">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/417422">More jobs like this</a> | <a href="/allJobsByEmployer/36528">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/NONASCENTJOB">All Non Ascent Jobs</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 12:37:20.0</td>
+			</tr><tr class="odd">
+				<td style="display: none" class=" ">417421</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="417421" data-url="/job-detail-417421/Tieto/Pune/Lead Business Analyst"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="/images/printAd/2014/7/30/Teito.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=/images/printAd/2014/7/30/Teito.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-417421/Tieto/Pune/Lead Business Analyst"><strong>Lead Business Analyst</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-36528-New/Tieto-jobs">Tieto </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Pune-jobs">Pune</a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										4-12 yrs exp. Energy Components, Oil &amp; Gas (Upstream) domain knowledge, with any of the following te
+									
+								
+								<div> <a href="/job-detail-417421/Tieto/Pune/Lead Business Analyst">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/417421">More jobs like this</a> | <a href="/allJobsByEmployer/36528">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/NONASCENTJOB">All Non Ascent Jobs</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 12:34:53.0</td>
+			</tr><tr class="even">
+				<td style="display: none" class=" ">417414</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="417414" data-url="/job-detail-417414/Tieto/Pune/Senior Business Analyst"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="/images/printAd/2014/7/30/Teito.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=/images/printAd/2014/7/30/Teito.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-417414/Tieto/Pune/Senior Business Analyst"><strong>Senior Business Analyst</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-36528-New/Tieto-jobs">Tieto </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Pune-jobs">Pune</a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										4-12 yrs exp. Energy Components, Oil &amp; Gas (Upstream) domain knowledge, with any of the following te
+									
+								
+								<div> <a href="/job-detail-417414/Tieto/Pune/Senior Business Analyst">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/417414">More jobs like this</a> | <a href="/allJobsByEmployer/36528">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/NONASCENTJOB">All Non Ascent Jobs</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 12:26:27.0</td>
+			</tr><tr class="odd">
+				<td style="display: none" class=" ">417390</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="417390" data-url="/job-detail-417390/Tieto/Pune/Business Analyst"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="/images/printAd/2014/7/30/Teito.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=/images/printAd/2014/7/30/Teito.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-417390/Tieto/Pune/Business Analyst"><strong>Business Analyst</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-36528-New/Tieto-jobs">Tieto </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Pune-jobs">Pune</a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										4-12 yrs exp. Energy Components, Oil &amp; Gas (Upstream) domain knowledge, with any of the following te
+									
+								
+								<div> <a href="/job-detail-417390/Tieto/Pune/Business Analyst">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/417390">More jobs like this</a> | <a href="/allJobsByEmployer/36528">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/NONASCENTJOB">All Non Ascent Jobs</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 12:21:00.0</td>
+			</tr><tr class="even">
+				<td style="display: none" class=" ">418131</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="418131" data-url="/job-detail-418131/Asiapower Overseas Employment Services/Saudi Arabia /Quality Assurance Inspector - Civil"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="http://paperads.itsmyascent.com/epaper/output/30072014/9764141_1.1.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=http://paperads.itsmyascent.com/epaper/output/30072014/9764141_1.1.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-418131/Asiapower Overseas Employment Services/Saudi Arabia /Quality Assurance Inspector - Civil"><strong>Quality Assurance Inspector - Civil</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-11252-New/Asiapower Overseas Employment Services-jobs">Asiapower Overseas Employment Services </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Saudi Arabia -jobs">Saudi Arabia </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										Gulf Exp Preferred. 5 + yrs exp as an Inspector / ARAMCO exp preferred. For detailed Job Description
+									
+								
+								<div> <a href="/job-detail-418131/Asiapower Overseas Employment Services/Saudi Arabia /Quality Assurance Inspector - Civil">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/418131">More jobs like this</a> | <a href="/allJobsByEmployer/11252">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/9764141_2">All jobs in this advertisement</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 00:00:00.0</td>
+			</tr><tr class="odd">
+				<td style="display: none" class=" ">418130</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="418130" data-url="/job-detail-418130/Asiapower Overseas Employment Services/Saudi Arabia /Quality Assurance Inspector - Civil"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="http://paperads.itsmyascent.com/epaper/output/30072014/9764141_2.1.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=http://paperads.itsmyascent.com/epaper/output/30072014/9764141_2.1.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-418130/Asiapower Overseas Employment Services/Saudi Arabia /Quality Assurance Inspector - Civil"><strong>Quality Assurance Inspector - Civil</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-11252-New/Asiapower Overseas Employment Services-jobs">Asiapower Overseas Employment Services </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Saudi Arabia -jobs">Saudi Arabia </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										(PWHT), Gulf Exp Preferred. 5 + yrs exp as an Inspector / ARAMCO exp preferred. For detailed Job Des
+									
+								
+								<div> <a href="/job-detail-418130/Asiapower Overseas Employment Services/Saudi Arabia /Quality Assurance Inspector - Civil">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/418130">More jobs like this</a> | <a href="/allJobsByEmployer/11252">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/9764141_3">All jobs in this advertisement</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 00:00:00.0</td>
+			</tr><tr class="even">
+				<td style="display: none" class=" ">418128</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="418128" data-url="/job-detail-418128/Jaiprakash Power Ventures Limited/Noida/Manager - Instrumentation"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="http://paperads.itsmyascent.com/epaper/output/30072014/9762353_1.1.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=http://paperads.itsmyascent.com/epaper/output/30072014/9762353_1.1.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-418128/Jaiprakash Power Ventures Limited/Noida/Manager - Instrumentation"><strong>Manager - Instrumentation</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-37502-New/Jaiprakash Power Ventures Limited-jobs">Jaiprakash Power Ventures Limited </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Noida-jobs">Noida</a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										B.Tech/B.E. full time course in Instrumentation! Electronics &amp; Communication with 15 years relevant 
+									
+								
+								<div> <a href="/job-detail-418128/Jaiprakash Power Ventures Limited/Noida/Manager - Instrumentation">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/418128">More jobs like this</a> | <a href="/allJobsByEmployer/37502">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/9762353_1">All jobs in this advertisement</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 00:00:00.0</td>
+			</tr><tr class="odd">
+				<td style="display: none" class=" ">418127</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="418127" data-url="/job-detail-418127/Jaiprakash Power Ventures Limited/Noida/Manager - Control"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="http://paperads.itsmyascent.com/epaper/output/30072014/9762353_1.1.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=http://paperads.itsmyascent.com/epaper/output/30072014/9762353_1.1.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-418127/Jaiprakash Power Ventures Limited/Noida/Manager - Control"><strong>Manager - Control</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-37502-New/Jaiprakash Power Ventures Limited-jobs">Jaiprakash Power Ventures Limited </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Noida-jobs">Noida</a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										B.Tech/B.E. full time course in Instrumentation! Electronics &amp; Communication with 15 years relevant 
+									
+								
+								<div> <a href="/job-detail-418127/Jaiprakash Power Ventures Limited/Noida/Manager - Control">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/418127">More jobs like this</a> | <a href="/allJobsByEmployer/37502">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/9762353_1">All jobs in this advertisement</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 00:00:00.0</td>
+			</tr><tr class="even">
+				<td style="display: none" class=" ">418126</td>
+				<td class=" ">
+					<article class="jobPostContentBox">
+						<div class="fLt w25"><input type="checkbox" name="jobIdCheckBox" value="418126" data-url="/job-detail-418126/Jaiprakash Power Ventures Limited/Noida/Manager - Electrical"></div>
+						
+						<div class="fLt w75">
+							
+								
+									<img border="0" alt="paperthumb" src="http://paperads.itsmyascent.com/epaper/output/30072014/9762353_1.1.jpg" width="74" height="74" onclick="window.open('/adPicZoom?url=http://paperads.itsmyascent.com/epaper/output/30072014/9762353_1.1.jpg','', 'toolbar,width=620,height=500,resizable')" style="cursor:pointer;">
+								
+								
+								
+							
+						</div>
+						<div class="fRt w370">
+							<div> 
+								<span class="fLt"><a href="/job-detail-418126/Jaiprakash Power Ventures Limited/Noida/Manager - Electrical"><strong>Manager - Electrical</strong></a></span>
+								
+							</div>
+					             
+							<br class="clear">
+							<div>
+								<span class="fLt"><strong>Company:</strong> <a href="/jobs-Openings-37502-New/Jaiprakash Power Ventures Limited-jobs">Jaiprakash Power Ventures Limited </a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Location:</strong> <a href="/jobs-l/Noida-jobs">Noida</a></span>
+								<br class="clear">
+								<span class="fLt"><strong>Date:</strong> 30.07.2014</span>
+								<br class="clear">
+							</div>
+					
+							<div class="pT3">
+								
+									
+									
+										B.Tech/B.E. full time course in Electrical with 15 years 
+relevant experience. Good knowledge of ge
+									
+								
+								<div> <a href="/job-detail-418126/Jaiprakash Power Ventures Limited/Noida/Manager - Electrical">View full description</a></div>
+							</div>
+					
+							<div class="mT5">
+								<a href="/moreJobsLikeThis/418126">More jobs like this</a> | <a href="/allJobsByEmployer/37502">All jobs by this advertiser</a> | <a href="/allJobsInThisAdvertisement/9762353_1">All jobs in this advertisement</a>
+							</div>
+						</div>
+						<br class="clear">
+					</article><!-- jobPostContentBox -->
+				</td>
+				<td style="display: none" class=" sorting_1">
+					<span class="fRt" data-rating="1">1</span>
+				</td>
+				<td style="display: none" class=" sorting_2">2014-07-30 00:00:00.0</td>
+			</tr></tbody></table></div>
+	<div class="fRt mT5 mB5">
+		<div title="Check ALl" class="GrybtnG fLt mT5 mR10"><a class="GrybtnG" href="javascript:void(0);" id="checkAllId">Check All</a></div>
+		<div title="Un-Check All" class="GrybtnG fLt mT5 mR10"><a class="GrybtnG" href="javascript:void(0);" id="uncheckAllId">Uncheck All</a></div>
+		<div title="Save Jobs" class="GrybtnG fLt mT5 mR10"><a class="GrybtnG" href="javascript:void(0);" id="saveJobsId">Save Jobs</a></div>
+        <div title="Send" class="GrybtnG fLt mT5 mR10"><a class="GrybtnG" href="javascript:void(0);" id="sendJobToFriendId">Send to friend</a></div>
+	</div>
+    <br class="clear">
+</section><!-- jobPostingContainer -->
+<br class="clear">
+</div>
+  		</div>
+  		
+  	</div>
